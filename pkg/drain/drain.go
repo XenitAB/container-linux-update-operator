@@ -32,16 +32,16 @@ func GetPodsForDeletion(kc kubernetes.Interface, node string) (pods []v1.Pod, er
 
 		// skip mirror pods
 		if _, ok := pod.Annotations[kubelettypes.ConfigMirrorAnnotationKey]; ok {
-		    glog.Info("#### skipping pod %q because of ConfigMirrorAnnotationKey", pod.Name)
+		    glog.Infof("#### skipping pod %q because of ConfigMirrorAnnotationKey", pod.Name)
 			continue
 		}
 
 		// check if pod is a daemonset owner
 		if _, err = getOwnerDaemonset(kc, pod); err == nil {
-		    glog.Info("#### skipping pod %q because of getOwnerDaemonset()", pod.Name)
+		    glog.Infof("#### skipping pod %q because of getOwnerDaemonset()", pod.Name)
 			continue
 		}
-		glog.Info("#### adding pod %q to list", pod.Name)
+		glog.Infof("#### adding pod %q to list", pod.Name)
 
 		pods = append(pods, pod)
 	}
@@ -51,13 +51,13 @@ func GetPodsForDeletion(kc kubernetes.Interface, node string) (pods []v1.Pod, er
 
 // getOwnerDaemonset returns an existing DaemonSet owner if it exists.
 func getOwnerDaemonset(kc kubernetes.Interface, pod v1.Pod) (interface{}, error) {
-    glog.Info("#### getOwnerDaemonset for pod %q", pod.Name)
+    glog.Infof("#### getOwnerDaemonset for pod %q", pod.Name)
 	if len(pod.OwnerReferences) == 0 {
         glog.Info("#### pod.OwnerReferences == 0")
 		return nil, fmt.Errorf("pod %q has no owner objects", pod.Name)
 	}
 	for _, ownerRef := range pod.OwnerReferences {
-        glog.Info("#### OwnerReference = %q", ownerRef.Kind)
+        glog.Infof("#### OwnerReference = %q", ownerRef.Kind)
 		// skip pod if it is owned by an existing daemonset
 		if ownerRef.Kind == "DaemonSet" {
 			ds, err := getDaemonsetController(kc, pod.Namespace, &ownerRef)
@@ -67,7 +67,7 @@ func getOwnerDaemonset(kc kubernetes.Interface, pod v1.Pod) (interface{}, error)
 				return ds, nil
 			}
 			if !errors.IsNotFound(err) {
-			    glog.Info("#### failed to get controller of pod %q: %v", pod.Name, err)
+			    glog.Infof("#### failed to get controller of pod %q: %v", pod.Name, err)
 				return nil, fmt.Errorf("failed to get controller of pod %q: %v", pod.Name, err)
 			}
 		}
