@@ -16,7 +16,7 @@ bin/%:
 	go build -o $@ -ldflags $(LD_FLAGS) $(REPO)/cmd/$*
 
 release-bin:
-	./build/build-release.sh
+	bash ./build/build-release.sh
 
 test:
 	go test -v $(REPO)/pkg/...
